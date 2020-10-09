@@ -1,0 +1,158 @@
+// =============================================================================
+// Font Face
+// =============================================================================
+
+@mixin font-face($name, $path, $weight: null, $style: null, $exts: eot woff ttf svg) {
+	$src: null;
+
+	$extmods: (
+		eot: "?",
+		svg: "#" + str-replace($name, " ", "_")
+	);
+
+	$formats: (
+		otf: "opentype",
+		ttf: "truetype"
+	);
+
+	@each $ext in $exts {
+		$extmod: if(map-has-key($extmods, $ext), $ext + map-get($extmods, $ext), $ext);
+		$format: if(map-has-key($formats, $ext), map-get($formats, $ext), $ext);
+		$src: append($src, url(quote($path + "." + $extmod)) format(quote($format)), comma);
+	}
+
+	@font-face {
+		font-family: quote($name);
+		font-style: $style;
+		font-weight: $weight;
+		src: $src;
+	}
+}
+
+// =============================================================================
+// Animations
+// =============================================================================
+
+@mixin keyframes($animation-name) {
+	@-webkit-keyframes #{$animation-name} {
+		@content;
+	}
+	@-moz-keyframes #{$animation-name} {
+		@content;
+	}  
+	@-ms-keyframes #{$animation-name} {
+		@content;
+	}
+	@-o-keyframes #{$animation-name} {
+		@content;
+	}  
+	@keyframes #{$animation-name} {
+		@content;
+	}
+}
+
+@mixin animation($str) {
+	-webkit-animation: #{$str};
+	-moz-animation: #{$str};
+	-ms-animation: #{$str};
+	-o-animation: #{$str};
+	animation: #{$str};      
+}
+
+// =============================================================================
+// Media Querries
+// =============================================================================
+
+@mixin desktop-hd {
+    @media (min-width: #{$desktop-hd}) {
+        @content;
+    }
+}
+
+@mixin desktop {
+    @media (min-width: #{$desktop}) {
+        @content;
+    }
+}
+
+@mixin tablet {
+    @media (max-width: #{$mobile}) {
+        @content;
+    }
+}
+
+@mixin mobile {
+    @media (max-width: #{$mobile}) {
+        @content;
+    }
+}
+
+@mixin mobile-xs {
+    @media (max-width: #{$mobile-xs}) {
+        @content;
+    }
+}
+
+// =============================================================================
+// CrossBrowsing
+// =============================================================================
+
+@mixin edge {
+    @supports (-ms-accelerator:true) {
+        @content;
+    }
+    @supports (-ms-ime-align:auto) {
+        @content;
+    }
+}
+
+@mixin ie11 {
+    @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+        @content;
+    }
+}
+
+// =============================================================================
+// BoxMargins
+// =============================================================================
+
+@mixin boxMargins($numPerRow, $margin) {
+
+	width: ((100% - (($numPerRow - 1) * $margin)) / $numPerRow);
+
+	&:nth-child(n) {
+	  margin-bottom: $margin;
+	  margin-right: $margin;
+	}
+	&:nth-child(#{$numPerRow}n) {
+	  margin-right: 0;
+	  margin-bottom: 0;
+	}
+}
+
+// =============================================================================
+// Fluid Typography
+// =============================================================================
+
+@function strip-unit($value) {
+	@return $value / ($value * 0 + 1);
+  }
+  
+  @mixin fluid-type($min-vw, $max-vw, $min-font-size, $max-font-size) {
+	$u1: unit($min-vw);
+	$u2: unit($max-vw);
+	$u3: unit($min-font-size);
+	$u4: unit($max-font-size);
+  
+	@if $u1 == $u2 and $u1 == $u3 and $u1 == $u4 {
+	  & {
+		font-size: $min-font-size;
+		@media screen and (min-width: $min-vw) {
+		  font-size: calc(#{$min-font-size} + #{strip-unit($max-font-size - $min-font-size)} * ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)}));
+		}
+		@media screen and (min-width: $max-vw) {
+		  font-size: $max-font-size;
+		}
+	  }
+	}
+  }
